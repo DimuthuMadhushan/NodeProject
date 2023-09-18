@@ -1,11 +1,21 @@
+import Summary from "../models/Summary.js";
+import { fetchSummary } from "../util/generateSummary.js";
+import { v4 as uuidv4 } from 'uuid';
 let posts=[];
 
 export async function savePosts(req,res){
-    const body=req.body;
-    posts.push(body);
-    res.json(body).status(201);
-}
-export async function getAllPosts(re, res){
+    //const newSummary={...req.body, id:uuidv4().slice(0,8)};
+    //const body=req.body;
+    //posts.push(body);
+    const summary = new Summary({
+        text: req.body.text,
+        summary: req.body.summary,
+      });
+    
+      await summary.save();
+      res.json(summary).status(201);
+    }
+export async function getAllPosts(req, res){
     res.json(posts);
 }
 
@@ -41,5 +51,13 @@ export async function getPost(req,res){
         res.json(post);
     }else{
         res.status(404).json({messege:"post not found"});
+    }
+}
+export async function generateSummery(req,res){
+    try {
+        const generatedReply =await fetchSummary(req.body.text);
+        res.status(200).json({data:generatedReply});
+    } catch (error) {
+       res.status(500).json({message: "Internal Server Error"}); 
     }
 }
